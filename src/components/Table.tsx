@@ -1,50 +1,33 @@
-import { table } from "console";
+import { ChangeEvent, useState } from "react";
+import { PaymentType, getAllPayments } from "./DataFunctions";
+import PaymentTableRow from "./PaymentTableRow";
 
 const Table = () : JSX.Element => {
-const transactions = [
-    { id:1,
-        date:"12/12/2023",
-        country: "US",
-        currency: "USD",
-        amount: 123.45,
-    },
-  
-    { id:2,
-        date:"1/2/2023",
-        country: "FR",
-        currency: "EUR",
-        amount: 23.45,
-    },
 
-    { id:3,
-        date:"1/31/2023",
-        country: "FR",
-        currency: "EUR",
-        amount: 12.35,
-    },
-    
-    { id:4,
-        date:"8/2/2023",
-        country: "FR",
-        currency: "EUR",
-        amount: 999.87,
-    },
-    
+    const transactions: PaymentType[] = getAllPayments();
+    const uniqueCountries: string[] = ['Select'].concat(Array.from(new Set(transactions.map((t, index) => t.country))));
+    const [currentCountry, setCurrentCountry] = useState<string>();
 
-]
-
-return(<table className="table">
-            
-            <tbody><tr><th>ID</th><th>Date</th><th>Country</th><th>Currency</th><th>Amount</th></tr>
-            {transactions.map((transaction, index)=> {return (<tr key={index}><td>{transaction.id}</td>
-                                                                            <td>{transaction.date}</td>
-                                                                            <td>{transaction.country}</td>
-                                                                            <td>{transaction.currency}</td>
-                                                                            <td>{transaction.amount}</td>
-                                                                            </tr>)})}
-            </tbody>
-        </table>
-        )
+    const onChange = (e: ChangeEvent<HTMLSelectElement>) : void => {
+        setCurrentCountry(e.target.value);
     }
+
+    return(
+        <div className="main-content">
+            <select onChange={(e) => onChange(e)}>
+                {uniqueCountries.map((country, index) => {
+                    return (<option key={index} value={country}>{country}</option>)
+                })}
+            </select>
+            <table className="table">            
+                <tbody>
+                    <tr><th>ID</th><th>Date</th><th>Country</th><th>Currency</th><th>Amount</th><th>orderId</th></tr>
+                        {transactions.map((transaction, index) => {
+                            return (currentCountry === transaction.country ? <PaymentTableRow transaction={transaction} key={index} /> : '')})}
+                </tbody>
+            </table>
+        </div>
+            )
+        }
 
 export default Table;
